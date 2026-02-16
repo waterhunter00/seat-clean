@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>좌석 청소 프로그램</title>
+  
+  <link rel="icon" href="data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+  <rect width='64' height='64' rx='12' fill='%2322c55e'/>
+  <g transform='rotate(-30 32 32)'>
+    <rect x='30' y='10' width='4' height='36' rx='2' fill='white'/>
+    <rect x='20' y='40' width='24' height='8' rx='2' fill='white'/>
+  </g>
+</svg>">
+
+<style>
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 12px; background:#fafafa; }
+h1 { margin-bottom: 8px; }
+
+/* 🔹 청소 바와 좌석 맵 사이 여백 추가 */
+#clean-all {
+  margin-bottom: 20px; /* 필요에 따라 px 조절 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clean-inline {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.reset.small {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  background:#ef4444;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* 🔹 좌석 맵 */
+.sections {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  overflow-x: auto;
+}
+
+.section {
+  margin-bottom: 24px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.section h2 { margin: 0; font-size: 18px; }
+
+.map {
+  position: relative;
+  width: 580px;
+  height: 580px;
+  background:#f3f4f6;
+  border-radius: 12px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.seat {
+  position: absolute;
+  width: 44px; height: 44px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  font-weight:700;
+  font-size:12px;
+  cursor:pointer;
+  user-select:none;
+  transition:.15s;
+}
+
+.seat.active {
+  background:#22c55e;
+  border-color:#16a34a;
+  color:#fff;
+}
+
+/* 문 */
+.door {
+  position:absolute;
+  width: 60px; height: 60px;
+  border: 2px dashed #9ca3af;
+  background:#fff;
+}
+
+.door.right { border-radius: 0 60px 0 0; }
+.door.left { border-radius: 60px 0 0 0; }
+</style>
+</head>
+
+<body>
+  <h1>좌석 청소</h1>
+  
+  <!-- 통합 청소 리스트를 맨 위로 -->
+  <div id="clean-all">
+    <div class="clean-inline">
+      청소 필요 좌석: <span id="list-dirty">없음</span>
+    </div>
+    <button id="reset-dirty" class="reset small">초기화</button>
+  </div>
+  
+  <div class="sections">
+    
+    <!-- 🟩 그린스퀘어 -->
+    <div class="section">
+      <div class="header-row">
+        <h2>🟩 그린스퀘어</h2>
+      </div>
+      <div class="map" id="greensquare"></div>
+    </div>
+    
+    <!-- 🟦 포커스룸 -->
+    <div class="section">
+      <div class="header-row">
+        <h2>🟦 포커스룸</h2>
+      </div>
+      <div class="map" id="focusroom"></div>
+    </div>
+    
+  </div>
+</body>
+
+<script>
+const dirty = new Set(JSON.parse(localStorage.getItem('all_dirty') || '[]'));
+const activeSeats = new Set(JSON.parse(localStorage.getItem('all_active') || '[]'));
+
+function save() {
+  localStorage.setItem('all_dirty', JSON.stringify([...dirty]));
+  localStorage.setItem('all_active', JSON.stringify([...activeSeats]));
+}
+
+function render() {
+  // 통합 리스트 갱신
+  const targets = [...dirty].sort();
+  document.getElementById('list-dirty').textContent = targets.length ? targets.join(', ') : '없음';
+
+  // 각 좌석 상태 갱신
+  document.querySelectorAll('.seat').forEach(seat => {
+    const id = seat.dataset.id;
+    seat.classList.toggle('active', activeSeats.has(id));
+  });
+
+  save();
+}
+
+function initSeatMap({ mapId, layout, doorPos }) {
+  const map = document.getElementById(mapId);
+
+  layout.forEach(([id, x, y]) => {
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.dataset.id = id;
+    seat.textContent = id;
+    seat.style.left = x + 'px';
+    seat.style.top = y + 'px';
+
+    seat.onclick = () => {
+      const isActive = seat.classList.toggle('active');
+      if (isActive) {
+        activeSeats.add(id);
+        dirty.delete(id);
+      } else {
+        activeSeats.delete(id);
+        dirty.add(id);
+      }
+      render();
+    };
+
+    map.appendChild(seat);
+  });
+
+  if (doorPos) {
+    const door = document.createElement('div');
+    door.classList.add('door');
+    door.classList.add(mapId === 'focusroom' ? 'left' : 'right');
+    door.style.left = doorPos[0] + 'px';
+    door.style.top = doorPos[1] + 'px';
+    map.appendChild(door);
+  }
+}
+
+/* 🟩 그린스퀘어 */
+initSeatMap({
+  mapId: 'greensquare',
+  doorPos: [340, 520],
+  layout: [
+    ['G01', 40, 20], ['G02', 110, 20], ['G03', 180, 20], ['G04', 250, 20], ['G05', 320, 20], ['G06', 390, 20], ['G07', 460, 20],
+    ['G08', 40, 90], ['G09', 90, 90], ['G10', 140, 90], ['G11', 190, 90], ['G12', 240, 90], ['G13', 290, 90], ['G14', 340, 90],
+    ['G15', 40, 140], ['G16', 90, 140], ['G17', 140, 140], ['G18', 190, 140], ['G19', 240, 140], ['G20', 290, 140], ['G21', 340, 140],
+    ['G22', 40, 220], ['G23', 90, 220], ['G24', 140, 220], ['G25', 190, 220], ['G26', 240, 220], ['G27', 290, 220], ['G28', 340, 220],
+    ['G29', 40, 270], ['G30', 90, 270], ['G31', 140, 270], ['G32', 190, 270], ['G33', 240, 270], ['G34', 290, 270], ['G35', 340, 270],
+    ['G36', 40, 350], ['G37', 90, 350], ['G38', 140, 350], ['G39', 190, 350], ['G40', 240, 350], ['G41', 290, 350], ['G42', 340, 350],
+    ['G43', 40, 400], ['G44', 90, 400], ['G45', 140, 400], ['G46', 190, 400], ['G47', 240, 400], ['G48', 290, 400], ['G49', 340, 400],
+    ['G50', 420, 90], ['G51', 420, 140], ['G52', 420, 190], ['G53', 420, 240], ['G54', 420, 290], ['G55', 420, 340], ['G56', 420, 390], ['G57', 420, 440], ['G58', 420, 490],
+    ['G59', 500, 90], ['G60', 500, 140], ['G61', 500, 190], ['G62', 500, 240], ['G63', 500, 290], ['G64', 500, 340], ['G65', 500, 390], ['G66', 500, 440], ['G67', 500, 490],
+  ]
+});
+
+/* 🟦 포커스룸 */
+initSeatMap({
+  mapId: 'focusroom',
+  doorPos: [400, 520],
+  layout: [
+    ['M01', 90, 20], ['W05', 190, 20], ['W01', 290, 20],
+    ['M02', 70, 70], ['M05', 170, 70], ['W02', 270, 70],
+    ['M03', 90, 120], ['W06', 190, 120], ['W03', 290, 120],
+    ['M04', 70, 170], ['M06', 170, 170], ['W04', 270, 170],
+    ['M07', 40, 300], ['M08', 90, 300], ['M09', 140, 300], ['M10', 190, 300], ['M11', 240, 300], ['M12', 290, 300],
+    ['M13', 40, 350], ['M14', 90, 350], ['M15', 140, 350], ['M16', 190, 350], ['M17', 240, 350], ['M18', 290, 350],
+    ['W17', 90, 420], ['W18', 140, 420], ['W19', 190, 420], ['W20', 240, 420], ['W21', 290, 420],
+    ['W11', 40, 470], ['W12', 90, 470], ['W13', 140, 470], ['W14', 190, 470], ['W15', 240, 470], ['W16', 290, 470],
+    ['W07', 40, 540], ['W08', 90, 540], ['W09', 140, 540], ['W10', 190, 540],
+  ]
+});
+
+// 통합 초기화 버튼
+document.getElementById('reset-dirty').onclick = () => {
+  dirty.clear();
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
