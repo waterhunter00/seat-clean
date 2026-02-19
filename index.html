@@ -1,19 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>좌석 청소 프로그램</title>
-  <link rel="manifest" href="manifest.json">
-  
-  <link rel="icon" href="data:image/svg+xml;utf8,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
-  <rect width='64' height='64' rx='12' fill='%2322c55e'/>
-  <g transform='rotate(-30 32 32)'>
-    <rect x='30' y='10' width='4' height='36' rx='2' fill='white'/>
-    <rect x='20' y='40' width='24' height='8' rx='2' fill='white'/>
-  </g>
-</svg>">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>좌석 청소 프로그램</title>
 
 <style>
 body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 12px; background:#fafafa; }
@@ -26,7 +16,17 @@ h1 { margin-bottom: 8px; }
   justify-content: space-between;
   align-items: center;
 }
+.notice {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #374151;
+  margin-bottom: 12px;
+}
 
+.notice .warning {
+  color: #dc2626;
+  font-weight: 700;
+}
 .clean-inline {
   font-size: 14px;
   font-weight: 600;
@@ -108,10 +108,14 @@ h1 { margin-bottom: 8px; }
 </style>
 </head>
 
-<body>
-  <h1>좌석 청소</h1>
-  
-  <!-- 통합 청소 리스트를 맨 위로 -->
+  <body>
+  <h1><div class="notice">
+  <div class="warning"> ☆내가 안 한 일은 다른 조교님께 피해를 끼치는 일입니다.</div>
+  <div> V 핸드타올 채우기 + 금색 손잡이, 유리창 닦기 </div>
+  <div> V 캔틴(푸드룸, 개수대, 냉장고 안) + 라운지 청소</div>
+</div></h1>
+
+ <!-- 통합 청소 리스트를 맨 위로 -->
   <div id="clean-all">
     <div class="clean-inline">
       청소 필요 좌석: <span id="list-dirty">없음</span>
@@ -222,9 +226,9 @@ initSeatMap({
   doorPos: [400, 520],
   layout: [
     ['M01', 90, 20], ['W05', 190, 20], ['W01', 290, 20],
-    ['M02', 70, 70], ['M05', 170, 70], ['W02', 270, 70],
+    ['M02', 90, 70], ['M05', 190, 70], ['W02', 290, 70],
     ['M03', 90, 120], ['W06', 190, 120], ['W03', 290, 120],
-    ['M04', 70, 170], ['M06', 170, 170], ['W04', 270, 170],
+    ['M04', 90, 170], ['M06', 190, 170], ['W04', 290, 170],
     ['M07', 40, 300], ['M08', 90, 300], ['M09', 140, 300], ['M10', 190, 300], ['M11', 240, 300], ['M12', 290, 300],
     ['M13', 40, 350], ['M14', 90, 350], ['M15', 140, 350], ['M16', 190, 350], ['M17', 240, 350], ['M18', 290, 350],
     ['W17', 90, 420], ['W18', 140, 420], ['W19', 190, 420], ['W20', 240, 420], ['W21', 290, 420],
