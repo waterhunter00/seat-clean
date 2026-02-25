@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,6 +9,11 @@
 <style>
 body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 12px; background:#fafafa; }
 h1 { margin-bottom: 8px; }
+h1 {
+  font-size: 15px;      /* 원하는 크기 */
+  line-height: 1.4;
+  word-break: keep-all; /* 한글 줄바꿈 안정 */
+}
 
 /* 🔹 청소 바와 좌석 맵 사이 여백 추가 */
 #clean-all {
@@ -16,6 +22,13 @@ h1 { margin-bottom: 8px; }
   justify-content: space-between;
   align-items: center;
 }
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .notice {
   font-size: 12px;
   line-height: 1.4;
@@ -43,7 +56,14 @@ h1 { margin-bottom: 8px; }
   font-weight:700;
   cursor:pointer;
 }
+#reset-all {
+  background: #111;
+  color: #fff;
+}
 
+#reset-all:hover {
+  background: #000;
+}
 /* 🔹 좌석 맵 */
 .sections {
   display: flex;
@@ -116,12 +136,17 @@ h1 { margin-bottom: 8px; }
 </div></h1>
 
  <!-- 통합 청소 리스트를 맨 위로 -->
-  <div id="clean-all">
-    <div class="clean-inline">
-      청소 필요 좌석: <span id="list-dirty">없음</span>
-    </div>
+<div id="clean-all">
+  <div class="clean-inline">
+    청소 필요 좌석: <span id="list-dirty">없음</span>
+  </div>
+
+  <!-- 🔹 버튼 세로 정렬 -->
+  <div class="btn-group">
+    <button id="reset-all" class="reset small">전체 초기화</button>
     <button id="reset-dirty" class="reset small">초기화</button>
   </div>
+</div>
   
   <div class="sections">
     
@@ -240,10 +265,18 @@ initSeatMap({
 // 통합 초기화 버튼
 document.getElementById('reset-dirty').onclick = () => {
   dirty.clear();
+  render()
+};
+
+document.getElementById('reset-all').onclick = () => {
+  const ok = confirm("⚠️ 모든 좌석 상태와 청소 필요 좌석을 초기화할까요?");
+  if (!ok) return;
+
+  activeSeats.clear();
+  dirty.clear();
   render();
 };
 
 render();
 </script>
-</body>
 </html>
