@@ -17,16 +17,17 @@ h1 {
 
 /* 🔹 청소 바와 좌석 맵 사이 여백 추가 */
 #clean-all {
-  margin-bottom: 20px; /* 필요에 따라 px 조절 */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .btn-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 50px;
+  align-self: flex-start; /* 🔥 버튼만 위로 */
 }
 
 .notice {
@@ -51,18 +52,33 @@ h1 {
   font-size: 12px;
   border-radius: 6px;
   border: none;
-  background:#ef4444;
   color:#fff;
   font-weight:700;
   cursor:pointer;
+  width: 90px;
 }
+
+/* 🔴 전체 초기화 */
+/* 🔴 전체 초기화 버튼 */
 #reset-all {
-  background: #111;
-  color: #fff;
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  background: #ef4444;
+  color: white;
+  z-index: 999;
 }
 
 #reset-all:hover {
-  background: #000;
+  background: #dc2626;
+}
+
+/* 🟢 청소 초기화 */
+#reset-dirty {
+  background: #22c55e;
+}
+#reset-dirty:hover {
+  background: #16a34a;
 }
 /* 🔹 좌석 맵 */
 .sections {
@@ -144,7 +160,7 @@ h1 {
   <!-- 🔹 버튼 세로 정렬 -->
   <div class="btn-group">
     <button id="reset-all" class="reset small">전체 초기화</button>
-    <button id="reset-dirty" class="reset small">청소 초기화</button>
+    <button id="reset-dirty" class="reset small">청소 완료</button>
   </div>
 </div>
   
